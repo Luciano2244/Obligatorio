@@ -1,6 +1,8 @@
 from datetime import datetime
 import os
 import time
+from Objetos.socio import Socio
+from Objetos.medico import Medico
 
 class Policlínica: 
 
@@ -49,10 +51,7 @@ class Policlínica:
                     continue
 
                 fecha_nacimiento = input("Ingrese la fecha de nacimiento (YYYY-MM-DD): ")
-                fecha_nacimiento = datetime.strptime(fecha_nacimiento, "%Y-%m-%d")
-
                 fecha_ingreso = input("Ingrese la fecha de ingreso (YYYY-MM-DD): ")
-                fecha_ingreso = datetime.strptime(fecha_ingreso, "%Y-%m-%d")
 
                 celular = input("Ingrese el número de celular (9 dígitos, sin espacio): ")
                 if not celular.isdigit() or len(celular) != 9 or not celular.startswith("09"):
@@ -63,17 +62,9 @@ class Policlínica:
                 if tipo not in ["1", "2"]:
                     print("El valor ingresado no es correcto, elige la opción 1 o 2.")
                     continue
-                tipo = "Bonificado" if tipo == "1" else "No bonificado"
 
-                self.socios[cedula] = {
-                    "nombre": nombre, 
-                    "apellido": apellido,
-                    "fecha_nacimiento": fecha_nacimiento,
-                    "fecha_ingreso": fecha_ingreso,
-                    "celular": celular,
-                    "tipo": tipo,
-                    "deuda": 0   
-                }
+                socio = Socio(nombre, apellido, cedula, fecha_nacimiento, fecha_ingreso, celular, tipo)
+                self.socios[cedula] = socio
                 print("El socio se ha creado con éxito.")
                 time.sleep(2)
                 break
@@ -99,10 +90,7 @@ class Policlínica:
                     continue
 
                 fecha_nacimiento = input("Ingrese la fecha de nacimiento (YYYY-MM-DD): ")
-                fecha_nacimiento = datetime.strptime(fecha_nacimiento, "%Y-%m-%d")
-
                 fecha_ingreso = input("Ingrese la fecha de ingreso (YYYY-MM-DD): ")
-                fecha_ingreso = datetime.strptime(fecha_ingreso, "%Y-%m-%d")
 
                 celular = input("Ingrese el número de celular (9 dígitos, sin espacio): ")
                 if not celular.isdigit() or len(celular) != 9 or not celular.startswith("09"):
@@ -119,14 +107,8 @@ class Policlínica:
                     else:
                         continue
 
-                self.medicos[cedula] = {
-                    "nombre": nombre,
-                    "apellido": apellido,
-                    "fecha_nacimiento": fecha_nacimiento,
-                    "fecha_ingreso": fecha_ingreso,
-                    "celular": celular,
-                    "especialidad": especialidad
-                }
+                medico = Medico(nombre, apellido, cedula, fecha_nacimiento, fecha_ingreso, celular, especialidad)
+                self.medicos[cedula] = medico
                 print("El médico se ha creado con éxito.")
                 time.sleep(2)
                 break
@@ -148,7 +130,7 @@ class Policlínica:
             medico_nombre = input("Ingrese el nombre del médico: ")
             encontrado = False
             for medico in self.medicos.values():
-                if medico["nombre"] == medico_nombre:
+                if medico.nombre == medico_nombre:
                     encontrado = True
                     break
             if not encontrado:
@@ -171,6 +153,7 @@ class Policlínica:
                     "cantidad_pacientes": cantidad_pacientes
                 })
                 print("La consulta se ha creado con éxito.")
+                time.wait(2)
                 break
             except ValueError:
                 print("Por favor, ingrese los datos correctamente.")
@@ -199,6 +182,7 @@ class Policlínica:
                 if 1 <= opcion <= len(consultas_especialidad):
                     consulta_seleccionada = consultas_especialidad[opcion - 1]
                     print(f"Ha seleccionado la consulta del médico {consulta_seleccionada['medico']} el {consulta_seleccionada['fecha'].date()}.")
+                    time.wait(2)
                     break
                 else:
                     print(f"La opción ingresada no es válida. Debe ser un número entre 1 y {len(consultas_especialidad)}.")
@@ -229,6 +213,8 @@ class Policlínica:
             elif opcion == "5":
                 self.emitir_ticket_consulta()
             elif opcion == "6":
+                print("Saliendo...")
+                time.wait(1)
                 break
             else:
                 print("Opción no válida. Por favor, ingrese una opción del 1 al 6.")
