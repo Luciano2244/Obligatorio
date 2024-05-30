@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import os
 import time
 class Policlínica: 
@@ -20,10 +20,10 @@ class Policlínica:
                 if nombre_check==False and precio_check==1:
                     self.especialidades[nombre] = precio
                     print("La especialidad se ha creado con éxito.")
-                    time.sleep(3)
+                    time.sleep(2)
                     break
                 if nombre_check==True:
-                    print("Por favor, ingrese un nombre válido.") 
+                    print("Por favor, ingrese un nombre válido.")
                 elif precio_check!=1:
                     print("Por favor, ingrese un precio válido.")
             except ValueError:
@@ -37,11 +37,11 @@ class Policlínica:
             try:    
                 nombre = input("Ingrese el nombre: ")
                 apellido = input("Ingrese el apellido: ")
-                cedula = int(input("Ingrese la cédula de identidad: "))
-                fecha_nacimiento = datetime(input("Ingrese la fecha de nacimiento (YYYY-MM-DD): "))
+                cedula = int(input("Ingrese la cédula de identidad (9 digitos, sin puntos ni guiones): "))
+                fecha_nacimiento = input("Ingrese la fecha de nacimiento (YYYY-MM-DD): ")
                 #usamos formato datetime(por defecto) para que quede en formato de fecha
-                fecha_ingreso = datetime(input("Ingrese la fecha de ingreso (YYYY-MM-DD): "))
-                celular = int(input("Ingrese el número de celular: "))
+                fecha_ingreso = input("Ingrese la fecha de ingreso (YYYY-MM-DD): ")
+                celular = int(input("Ingrese el número de celular (9 digitos, sin espacio): "))
                 tipo = input("Ingrese el tipo de socio (1- Bonificado, 2- No bonificado): ")
                 #datos ingresados
                 #elegir tipos
@@ -57,11 +57,11 @@ class Policlínica:
                 #checkeo formato de fechas
                 nombre_check= nombre.isdigit()
                 apellido_check= apellido.isdigit()
-                cedula_check= isinstance(cedula,int)
-                celular_check= isinstance(celular,int)
+                cedula_check=isinstance(cedula,int)
+                celular_check=isinstance(celular,int)
                 #checkeo datos, esto va a dar TRUE si es str y 1 si es int
 
-                if nombre_check==False and apellido_check==False and cedula_check==1 and celular_check==1:
+                if nombre_check==False and apellido_check==False and cedula_check==1 and celular_check==1 and len(str(celular))==8 and str(celular)[0:]=="09" and len(str(cedula))==8:
                     self.socios[cedula] = {
                         "nombre": nombre, 
                         "apellido": apellido,
@@ -73,33 +73,55 @@ class Policlínica:
                     }
                     #guardamos valores en el array de self.socios
                     print("El socio se ha creado con éxito.")
+                    time.sleep(3)
                     break
-                else:
-                    print("Por favor, ingrese valores válidos.")
+                if nombre_check==True:
+                    print("Por favor, ingrese un nombre válido.")
+                elif apellido_check==True:
+                    print("Por favor, ingrese un apellido válido.")
+                elif cedula_check!=1 or len(str(cedula))!=8:
+                    print("Por favor, ingrese una cedula válida.")
+                elif celular_check!=1 or len(str(cedula))!=8 or str(celular)[0:]=="09":
+                    print("Por favor, ingrese un numero telefonico válido que comienze con 09XXXXXXX.")
             except ValueError:
-                print("Por favor, ingrese valores válidos.")
+                if nombre_check==True:
+                    print("Por favor, ingrese un nombre válido.")
+                elif apellido_check==True:
+                    print("Por favor, ingrese un apellido válido.")
+                elif cedula_check!=1 or len(str(cedula))!=8:
+                    print("Por favor, ingrese una cedula válida.")
+                elif celular_check!=1 or len(str(cedula))!=8 or str(celular)[0:]=="09":
+                    print("Por favor, ingrese un numero telefonico válido que comienze con 09XXXXXXX.")
+                elif tipo!=1 or 2:
+                    print("Por favor, seleccione un tipo de bonificacion.")
 
     def alta_medico(self):
         while True:
             try:
                 nombre = input("Ingrese el nombre: ")
                 apellido = input("Ingrese el apellido: ")
-                cedula = int(input("Ingrese la cédula de identidad: "))
-                fecha_nacimiento = datetime(input("Ingrese la fecha de nacimiento (YYYY-MM-DD): "))
-                fecha_ingreso = datetime(input("Ingrese la fecha de ingreso (YYYY-MM-DD): "))
-                celular = int(input("Ingrese el número de celular: "))
+                cedula = int(input("Ingrese la cédula de identidad (9 digitos, sin puntos ni guiones): "))
+                fecha_nacimiento = input("Ingrese la fecha de nacimiento (YYYY-MM-DD): ")
+                fecha_ingreso = input("Ingrese la fecha de ingreso (YYYY-MM-DD): ")
+                celular = int(input("Ingrese el número de celular (9 digitos, sin espacio): "))
                 especialidad = input("Ingrese la especialidad: ")
                 #datos ingresados
-                nombre_check=nombre.isdigit()
-                apellido_check=apellido.isdigit()
+                nombre_check= nombre.isdigit()
+                apellido_check= apellido.isdigit()
                 cedula_check=isinstance(cedula,int)
                 celular_check=isinstance(celular,int)
                 especialidad_check=especialidad.isdigit()
-                fecha_nacimiento = datetime.fromisoformat(fecha_nacimiento)
-                fecha_ingreso = datetime.fromisoformat(fecha_ingreso)
+                fecha_nacimiento = datetime.strptime(fecha_nacimiento,"%Y-%m-%d")
+                fecha_ingreso = datetime.strptime(fecha_ingreso,"%Y-%m-%d")
                 #de nuevo, checkeo datos
-
-                if nombre_check==False and apellido_check==False and cedula_check==1 and celular_check==1 and especialidad_check==False:
+                if especialidad not in self.especialidades:
+                    print("La especialidad no está dada de alta.")
+                    opcion = input("Desea dar de alta esta especialidad? (s/n): ")
+                    if opcion.lower() == "s":
+                        self.alta_especialidad()
+                    elif opcion.lower()== "n":
+                        break
+                if nombre_check==False and apellido_check==False and cedula_check==1 and celular_check==1 and len(str(celular))==8 and str(celular)[0:]=="09" and len(str(cedula))==8 and especialidad in self.especialidades:
                     self.medicos[cedula] = {
                         "nombre": nombre,
                         "apellido": apellido,
@@ -110,20 +132,67 @@ class Policlínica:
                     }
                     #guardamos valores en el array de self.medicos
                     print("El médico se ha creado con éxito.")
-                    time.sleep(3)
+                    time.sleep(2)
                     break
-                elif nombre_check==True:
+
+                if nombre_check==True:
                     print("Por favor, ingrese un nombre válido.")
+                    time.sleep(2)
+                    break
                 elif apellido_check==True:
                     print("Por favor, ingrese un apellido válido.")
-                elif cedula_check!=1:
+                    time.sleep(2)
+                    break
+                elif cedula_check!=1 or len(str(cedula))!=8:
                     print("Por favor, ingrese una cedula válida.")
-                elif celular_check!=1:
-                    print("Por favor, ingrese un numero telefonico válido.")   
-                elif especialidad_check!=True:
-                    print("Por favor, ingrese una especialidad válida.")     
+                    time.sleep(2)
+                    break
+                elif celular_check!=1 or len(str(cedula))!=8 or str(celular)[0:]=="09":
+                    print("Por favor, ingrese un numero telefonico válido que comienze con 09XXXXXXX.")
+                    time.sleep(2)
+                    break
+                elif especialidad_check==True:
+                    print("Por favor, ingrese una especialidad válida.")
+                    time.sleep(2)
+                    break
+                elif not isinstance(fecha_nacimiento,datetime):
+                    print("por favor, ingrese una fecha de nacimiento valida.")
+                    time.sleep(2)
+                    break
+                elif not isinstance(fecha_ingreso,datetime):
+                    print("por favor, ingrese una fecha de ingreso valida.")
+                    time.sleep(2)
+                    break
             except ValueError:
-                print("Por favor, ingrese valores válidos.")
+                    if nombre_check==True:
+                        print("Por favor, ingrese un nombre válido.")
+                        time.sleep(2)
+                        break
+                    elif apellido_check==True:
+                        print("Por favor, ingrese un apellido válido.")
+                        time.sleep(2)
+                        break
+                    elif cedula_check!=1 or len(str(cedula))!=8:
+                        print("Por favor, ingrese una cedula válida.")
+                        time.sleep(2)
+                        break
+                    elif celular_check!=1 or len(str(cedula))!=8 or str(celular)[0:]=="09":
+                        print("Por favor, ingrese un numero telefonico válido que comienze con 09XXXXXXX.")
+                        time.sleep(2)
+                        break
+                    elif especialidad_check==True:
+                        print("Por favor, ingrese una especialidad válida.")
+                        time.sleep(2)
+                        break
+                    elif not isinstance(fecha_nacimiento,datetime):
+                        print("por favor, ingrese una fecha de nacimiento valida.")
+                        time.sleep(2)
+                        break
+                    elif not isinstance(fecha_ingreso,datetime):
+                        print("por favor, ingrese una fecha de ingreso valida.")
+                        time.sleep(2)
+                        break
+                    
 
     def alta_consulta_medica(self):
 
