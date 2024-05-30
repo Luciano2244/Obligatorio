@@ -1,34 +1,74 @@
 from entities.medico import Medico
 from entities.especialidad import Especialidad
 from datetime import datetime
+import os
 
-# Función para obtener nombres de medicos de una especialidad en específico
-def obtener_medico_asociado_especialidad(nombre_especialidad):
-    if nombre_especialidad == medico1.especialidad:
-        return medico1.nombre
-    elif nombre_especialidad == medico2.especialidad:
-        return medico2.nombre
-    else:
-        return None  
-    
-# Función para obtener el precio de una consulta de una especialidad en específico
-def obtener_precio_especialidad(nombre_especialidad):
-    if nombre_especialidad == especialidad_1.nombre:
-        return especialidad_1.precio_fijo
-    elif nombre_especialidad == especialidad_2.nombre:
-        return especialidad_2.precio_fijo
-    else:
-        return None  
+class Policlinica:
+    def __init__(self):
+        self.especialidades = []
+        self.medicos = []
+        self.socios = []
+        self.consultas = []
+
+    def alta_especialidad(self):
+        nombre = input("Ingrese el nombre de la especialidad: ")
+        precio_fijo = input("Ingrese el precio asociado: ")
+        while True:
+            try:
+                precio_fijo = float(precio_fijo)
+                if not nombre.strip().isalpha():  # Verifica si el nombre contiene solo letras                                                          # isinstance checks if object belongs to a particular type
+                    raise TypeError
+                elif precio_fijo <= 0:
+                    raise ValueError
+                else:
+                    especialidad_nueva = Especialidad(nombre, precio_fijo)
+                    self.especialidades.append(especialidad_nueva)
+                    print("La especialidad se a creado con éxito")
+                    break
+            except TypeError:
+                nombre = input("El nombre de la especialidad es incorrecto, ingréselo nuevamente: ")
+            except ValueError:
+                precio_fijo = input("El precio de la especialidad es incorrecto, ingréselo nuevamente: ")
+
+    def alta_socio(self):
+        
+
+            
 
 
-especialidad_1 = Especialidad("Dermatología", 50)
-especialidad_2 = Especialidad("Cardiología", 80)
-nombre_especialidad = "Dermatología"
-precio_consulta = obtener_precio_especialidad(nombre_especialidad)
-print(precio_consulta)
-    
-medico1 = Medico("Juan", "Belgeri", 123456, "2002-02-12", "2004-04-12", 222222, "Cardiología")
-medico2 = Medico("Pedro", "Martinez", 654321, "2000-01-01", "2005-05-05", 111111, "Dermatología")
 
-medico = obtener_medico_asociado_especialidad("Cardiología")
-print(medico)
+    def menu_principal(self):
+        while True:
+                os.system("cls") #funcion para limpiar pantalla
+                print("""\nMenú principal:
+
+                1. Dar de alta una especialidad
+                2. Dar de alta un socio
+                3. Dar de alta un médico
+                4. Dar de alta una consulta médica
+                5. Emitir un ticket de consulta
+                6. Realizar consultas
+                7. Salir del programa""")
+
+                opcion = input("Opción: ")
+                if opcion == "1":
+                    self.alta_especialidad()
+                elif opcion == "2":
+                    self.alta_socio()
+                elif opcion == "3":
+                    self.alta_medico()
+                elif opcion == "4":
+                    self.alta_consulta_medica()
+                elif opcion == "5":
+                    self.emitir_ticket_consulta()
+                elif opcion == "6":
+                    self.realizar_consulta()
+                elif opcion == "7":
+                    print("Saliendo del programa...")
+                    break
+                else:
+                    print("La opción seleccionada no es correcta, vuelva a intentar con otra opción: ")
+
+if __name__ == "__main__":
+    programa = Policlinica()  # Instanciar un objeto de la clase Policlinica
+    programa.menu_principal()
