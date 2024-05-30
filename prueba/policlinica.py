@@ -11,12 +11,13 @@ class Policlínica:
         self.medicos = {}
         self.socios = {}
         self.consultas = []
-
+        #INICIALIZAMOS LOS ARRAY DE LA POLICLINICA
     def alta_especialidad(self):
         while True:
             try:
                 nombre = input("Ingrese el nombre de la especialidad: ")
                 if nombre.isdigit():
+                    #VEFICA SI ES DE SOLO NUMEROS EL STRING  Y VUELVE AL INICIO
                     print("El nombre de la especialidad es incorrecto, ingréselo nuevamente.")
                     continue
 
@@ -26,8 +27,11 @@ class Policlínica:
                     continue
 
                 self.especialidades[nombre] = precio
+                #ACCEDEMOS A LA CLAVE "NOMBRE" ASIGNANDOLE EL VALOR DEL PRECIO
+                #Y ASI, SE PUEDE INGRESAR COMO POR EJEMPLO= "ALBERTO"[NOMBRE]: 1200[PRECIO]
                 print("La especialidad se ha creado con éxito.")
                 time.sleep(2)
+                #ESTA FUNCION HACE QUE LA TERMINAL ESTE EN PAUSA PARA MOSTRAR EL PRINT
                 break
             except ValueError:
                 print("El precio de la especialidad es incorrecto, ingréselo nuevamente.")
@@ -37,6 +41,7 @@ class Policlínica:
             try:
                 nombre = input("Ingrese el nombre: ")
                 if not nombre.isalpha():
+                    #LA FUNCION ISALPHA HACE QUE RETORNE FALSO SI EL STRING TIENE NUMERICOS
                     print("No es un nombre válido, ingréselo de nuevo.")
                     continue
 
@@ -55,6 +60,7 @@ class Policlínica:
 
                 celular = input("Ingrese el número de celular (9 dígitos, sin espacio): ")
                 if not celular.isdigit() or len(celular) != 9 or not celular.startswith("09"):
+                    #USAMOS STARTSWITH PARA QUE LA VARIABLE CELULAR EMPIECE CON 09 EN LAS PRIMERAS POSICIONES
                     print("No es un número de celular válido, ingrese un número con el formato 09XXXXXXX.")
                     continue
 
@@ -64,7 +70,9 @@ class Policlínica:
                     continue
 
                 socio = Socio(nombre, apellido, cedula, fecha_nacimiento, fecha_ingreso, celular, tipo)
+                #AGREGAMOS LOS VALORES A LA CLASE SOCIO
                 self.socios[cedula] = socio
+                #Y LO AGREGAMOS AL ARRAY DE SOCIOS COMO CEDULA CLAVE
                 print("El socio se ha creado con éxito.")
                 time.sleep(2)
                 break
@@ -103,6 +111,7 @@ class Policlínica:
                     opcion = input("¿Desea dar de alta esta especialidad? (s/n): ")
                     if opcion.lower() == "s":
                         self.alta_especialidad()
+                        #AL QUERER DARLO DE ALTA SE VA A LA FUNCION DE ESPECIALIDAD Y LUEGO VUELVE A ESTA
                         especialidad = input("Ingrese la especialidad: ")
                     else:
                         continue
@@ -119,6 +128,7 @@ class Policlínica:
         while True:
             especialidad = input("Ingrese la especialidad: ")
             if especialidad not in self.especialidades:
+                #BUSCA SI LA ESPECIALIDAD ESTA EN EL ARRAY DE ESPECIALIDADES
                 print("La especialidad no está dada de alta.")
                 opcion = input("¿Desea dar de alta esta especialidad? (s/n): ")
                 if opcion.lower() == "s":
@@ -129,6 +139,8 @@ class Policlínica:
 
             medico_nombre = input("Ingrese el nombre del médico: ")
             encontrado = False
+            #BUSCA SI EL MEDICO ESTA EN EL ARRAY DE MEDICOS
+            #USAMOS LA VARIABLE ENCONTRADO PARA SABER SI NO LO ENCONTRAMOS LE DAMOS LA OPCION DE DARLO DE ALTA
             for medico in self.medicos.values():
                 if medico.nombre == medico_nombre:
                     encontrado = True
@@ -151,7 +163,7 @@ class Policlínica:
                     "medico": medico_nombre,
                     "fecha": fecha,
                     "cantidad_pacientes": cantidad_pacientes
-                })
+                }) #SE GUARDAN LOS VALORES PARA LA CONSULTA MEDICA
                 print("La consulta se ha creado con éxito.")
                 time.wait(2)
                 break
@@ -168,6 +180,7 @@ class Policlínica:
             return
         
         consultas_especialidad = [c for c in self.consultas if c["especialidad"] == especialidad]
+        #RECORRE EL ARRAY DE CONSULTAS PARA VER SI HAY UNA ESPECIALIDAD 
         if not consultas_especialidad:
             print("No hay consultas disponibles para esta especialidad.")
             return
@@ -175,23 +188,28 @@ class Policlínica:
         print(f"Consultas disponibles para la especialidad {especialidad}:")
         for i, consulta in enumerate(consultas_especialidad, 1):
             print(f"{i}. Médico: {consulta['medico']}, Fecha: {consulta['fecha'].date()}")
-
+            #IMPRIME EL NOMBRE DEL MEDICO CON LA FECHA DE CONSULTAS DISPONIBLE ACORDE A LA ESPEPCIALIDAD
         while True:
             try:
                 opcion = int(input("Seleccione el número de atención deseado: "))
                 if 1 <= opcion <= len(consultas_especialidad):
                     consulta_seleccionada = consultas_especialidad[opcion - 1]
+                    #-1 POR QUE LOS ARRAY EMPIEZAN DE 0 Y SELECCIONA EL VALOR INDICADO
                     print(f"Ha seleccionado la consulta del médico {consulta_seleccionada['medico']} el {consulta_seleccionada['fecha'].date()}.")
+                    #ELIGE LA CONSULTA EXITOSAMENTE CON EL NOMBRE DEL MEDICO Y LA FECHA DE LA CONSULTA
                     time.wait(2)
                     break
                 else:
                     print(f"La opción ingresada no es válida. Debe ser un número entre 1 y {len(consultas_especialidad)}.")
+                    #CANTIDAD DE CONSULTAS MEDICAS DISPONIBLES EN ESA FECHA SEGUN LA ESPECIALIDAD
             except ValueError:
                 print("Por favor, ingrese un número válido.")
 
     def menu_principal(self):
         while True:
             os.system("cls" if os.name == "nt" else "clear")
+            #IMPORT OS PERMITE INTERACTUAR CON LA TERMINAL 
+            #PARA HACER EL COMANDO DE CLS PARA LIMPAR PANTALLA
             print("""\nMenú principal:
 
             1. Dar de alta una especialidad
@@ -200,7 +218,7 @@ class Policlínica:
             4. Dar de alta una consulta médica
             5. Emitir un ticket de consulta
             6. Salir del programa""")
-
+            #MENU PRINCIPAL PARA INICIALIZAR LAS FUNCIONES DE LA POLICLINICA Y/O SALIR DEL PROGRAMA
             opcion = input("Opción: ")
             if opcion == "1":
                 self.alta_especialidad()
@@ -220,5 +238,7 @@ class Policlínica:
                 print("Opción no válida. Por favor, ingrese una opción del 1 al 6.")
 
 if __name__ == "__main__":
-    policlinica = Policlínica()
-    policlinica.menu_principal()
+    poli = Policlínica()
+    #INICIALIZAMOS LA CLASE POLICLINICA CON EL VALOR DE POLI
+    poli.menu_principal()
+    #INICIALIZAMOS EL MENU PRINCIPAL
