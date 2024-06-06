@@ -185,7 +185,7 @@ class Policlínica:
                     "cantidad_pacientes": cantidad_pacientes
                 }) #SE GUARDAN LOS VALORES PARA LA CONSULTA MEDICA
                 print("La consulta se ha creado con éxito.")
-                time.wait(2)
+                time.sleep(2)
                 break
             except ValueError:
                 print("Por favor, ingrese los datos correctamente.")
@@ -228,8 +228,60 @@ class Policlínica:
             except ValueError:
                 print("Por favor, ingrese un número válido.")
     
-    def realizar_consultas(self):
-        
+    def realizar_consultas(self): 
+        while True:
+            print("""Seleccione una opción:
+            1. Obtener todos los médicos asociados a una especialidad específica.
+            2. Obtener el precio de una consulta de una especialidad en específico.
+            3. Listar todos los socios con sus deudas asociadas en orden ascendente.
+            4. Realizar consultas respecto a cantidad de consultas entre dos fechas.
+            5. Realizar consultas respecto a las ganancias obtenidas entre dos fechas.
+            6. Salir de consultas.""")
+
+            opcion = input("Opción: ")
+
+            if opcion == "1":
+                especialidad = input("Ingrese la especialidad: ")
+                medicos = self.obtener_medicos_por_especialidad(especialidad)
+                if medicos:
+                    for medico in medicos:
+                        print(f"Nombre: {medico['nombre']} {medico['apellido']}, Celular: {medico['celular']}")
+                else:
+                    print("No hay médicos asociados a esta especialidad.")
+
+            elif opcion == "2":
+                especialidad = input("Ingrese la especialidad: ")
+                precio = self.obtener_precio_especialidad(especialidad)
+                print(f"Precio de la especialidad {especialidad}: {precio}")
+
+            elif opcion == "3":
+                socios = self.listar_socios_con_deudas()
+                for cedula, datos in socios:
+                    print(f"Cédula: {cedula}, Nombre: {datos['nombre']} {datos['apellido']}, Deuda: {datos['deuda']}")
+
+            elif opcion == "4" or opcion == "5":
+                try:
+                    fecha_inicio = input("Ingrese la fecha de inicio (YYYY-MM-DD): ")
+                    fecha_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d")
+                    fecha_final = input("Ingrese la fecha final (YYYY-MM-DD): ")
+                    fecha_final = datetime.strptime(fecha_final, "%Y-%m-%d")
+
+                    if opcion == "4":
+                        consultas = self.consultas_entre_fechas(fecha_inicio, fecha_final)
+                        print(f"Cantidad de consultas entre {fecha_inicio.date()} y {fecha_final.date()}: {len(consultas)}")
+
+                    elif opcion == "5":
+                        ganancias = self.ganancias_entre_fechas(fecha_inicio, fecha_final)
+                        print(f"Ganancias obtenidas entre {fecha_inicio.date()} y {fecha_final.date()}: {ganancias}")
+
+                except ValueError:
+                    print("No es una fecha válida, vuelva a ingresarla en el formato aaaa-mm-dd.")
+
+            elif opcion == "6":
+                break
+
+            else:
+                print("Opción no válida. Por favor, ingrese una opción del 1 al 6.")
 
     def menu_principal(self):
         while True:
