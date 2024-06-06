@@ -83,12 +83,12 @@ class Policlínica:
         while True:
             try:
                 nombre = input("Ingrese el nombre: ")
-                if not nombre.isalpha():
+                if not nombre.isalpha() or nombre == " ":
                     print("No es un nombre válido, ingréselo de nuevo.")
                     continue
 
                 apellido = input("Ingrese el apellido: ")
-                if not apellido.isalpha():
+                if not apellido.isalpha() or apellido == " ":
                     print("No es un apellido válido, ingréselo de nuevo.")
                     continue
 
@@ -135,6 +135,9 @@ class Policlínica:
     def alta_consulta_medica(self):
         while True:
             especialidad = input("Ingrese la especialidad: ")
+            if especialidad.isdigit() or especialidad == " ":
+                print("El nombre de la especialidad es incorrecto, ingréselo nuevamente.")
+                continue
             if especialidad not in self.especialidades:
                 #BUSCA SI LA ESPECIALIDAD ESTA EN EL ARRAY DE ESPECIALIDADES
                 print("""\nEsta especialidad no está dada de alta elija una opción::
@@ -149,6 +152,9 @@ class Policlínica:
                     break
 
             medico_nombre = input("Ingrese el nombre del médico: ")
+            if medico_nombre.isdigit() or medico_nombre == " ":
+                print("El nombre del médico es incorrecto, ingréselo nuevamente.")
+                continue
             encontrado = False
             #BUSCA SI EL MEDICO ESTA EN EL ARRAY DE MEDICOS
             #USAMOS LA VARIABLE ENCONTRADO PARA SABER SI NO LO ENCONTRAMOS LE DAMOS LA OPCION DE DARLO DE ALTA
@@ -187,7 +193,10 @@ class Policlínica:
     def emitir_ticket_consulta(self):
         especialidad = input("Ingrese la especialidad: ")
         if especialidad not in self.especialidades:
-            print("La especialidad no está dada de alta.")
+            print("""\nEsta especialidad no está dada de alta elija una opción::
+
+                1- Volver a ingresar la especialidad
+                2- Dar de alta esta especialidad """)
             opcion = input("¿Desea dar de alta esta especialidad? (s/n): ")
             if opcion.lower() == "s":
                 self.alta_especialidad()
@@ -218,6 +227,9 @@ class Policlínica:
                     #CANTIDAD DE CONSULTAS MEDICAS DISPONIBLES EN ESA FECHA SEGUN LA ESPECIALIDAD
             except ValueError:
                 print("Por favor, ingrese un número válido.")
+    
+    def realizar_consultas(self):
+        
 
     def menu_principal(self):
         while True:
@@ -231,7 +243,8 @@ class Policlínica:
             3. Dar de alta un médico
             4. Dar de alta una consulta médica
             5. Emitir un ticket de consulta
-            6. Salir del programa""")
+            6. Realizar Consultas
+            7. Salir del programa""")
             #MENU PRINCIPAL PARA INICIALIZAR LAS FUNCIONES DE LA POLICLINICA Y/O SALIR DEL PROGRAMA
             opcion = input("Opción: ")
             if opcion == "1":
@@ -245,6 +258,8 @@ class Policlínica:
             elif opcion == "5":
                 self.emitir_ticket_consulta()
             elif opcion == "6":
+                self.realizar_consultas()
+            elif opcion == "7":
                 print("Saliendo...")
                 time.wait(1)
                 break
