@@ -136,47 +136,53 @@ class Policlínica:
     def alta_consulta_medica(self):
         while True:
             especialidad = input("Ingrese la especialidad: ")
-            if especialidad.isdigit() or especialidad == " ":
+            if especialidad.isdigit() or especialidad.strip() == "":
                 print("El nombre de la especialidad es incorrecto, ingréselo nuevamente.")
                 continue
+            
             if especialidad not in self.especialidades:
-                #BUSCA SI LA ESPECIALIDAD ESTA EN EL ARRAY DE ESPECIALIDADES
-                print("""\nEsta especialidad no está dada de alta elija una opción::
+                # La especialidad no está registrada, se ofrecen opciones
+                print("""\nEsta especialidad no está dada de alta, elija una opción:
 
                 1- Volver a ingresar la especialidad
                 2- Dar de alta esta especialidad """)
                 opcion = input("Opción: ")
                 if opcion == "1":
-                    self.alta_consulta_medica()
+                    continue
                 elif opcion == "2":
                     self.alta_especialidad()
+                    continue
                 else:
                     break
+            
+            while True:
+                medico_nombre = input("Ingrese el nombre del médico: ")
+                if medico_nombre.isdigit() or medico_nombre.strip() == "":
+                    print("El nombre del médico es incorrecto, ingréselo nuevamente.")
+                    continue
+                
+                encontrado = False
+                for medico in self.medicos.values():
+                    if medico['nombre'] == medico_nombre:
+                        encontrado = True
+                        break
+                
+                if not encontrado:
+                    print("""\nEste médico no está dado de alta, elija una opción:
 
-            medico_nombre = input("Ingrese el nombre del médico: ")
-            if medico_nombre.isdigit() or medico_nombre == " ":
-                print("El nombre del médico es incorrecto, ingréselo nuevamente.")
-                continue
-            encontrado = False
-            #BUSCA SI EL MEDICO ESTA EN EL ARRAY DE MEDICOS
-            #USAMOS LA VARIABLE ENCONTRADO PARA SABER SI NO LO ENCONTRAMOS LE DAMOS LA OPCION DE DARLO DE ALTA
-            for medico in self.medicos.values():
-                if medico.nombre == medico_nombre:
-                    encontrado = True
-                    break
-            if not encontrado:
-                print("""\nEste médico no está dada de alta elija una opción::
-
-                1- Volver a ingresar el médico
-                2- Dar de alta el médico """)
-                opcion = input("Opción: ")
-                if opcion == "1":
-                    self.alta_consulta_medica()
-                elif opcion == "2":
-                    self.alta_medico()
+                    1- Volver a ingresar el nombre del médico
+                    2- Dar de alta el médico """)
+                    opcion = input("Opción: ")
+                    if opcion == "1":
+                        continue
+                    elif opcion == "2":
+                        self.alta_medico()
+                        continue
+                    else:
+                        break
                 else:
                     break
-
+            
             try:
                 fecha = input("Ingrese la fecha de la consulta (YYYY-MM-DD): ")
                 fecha = datetime.strptime(fecha, "%Y-%m-%d")
@@ -186,13 +192,13 @@ class Policlínica:
                     "medico": medico_nombre,
                     "fecha": fecha,
                     "cantidad_pacientes": cantidad_pacientes
-                }) #SE GUARDAN LOS VALORES PARA LA CONSULTA MEDICA
+                })
                 print("La consulta se ha creado con éxito.")
                 time.sleep(2)
                 break
             except ValueError:
                 print("Por favor, ingrese los datos correctamente.")
-
+                
     def emitir_ticket_consulta(self):
         especialidad = input("Ingrese la especialidad: ")
         if especialidad not in self.especialidades:
@@ -246,64 +252,73 @@ class Policlínica:
             else:
                 print("Opción no válida.")
                 return
-        
-        print("Ticket de consulta emitido con éxito.")
-        time.sleep(2)
+
+        if cedula_socio in self.socios:
+            precio=self.especialidades[especialidad]
+            deuda=self.socios.deuda
+            deuda+=precio
+
     
-    def realizar_consultas(self): 
+
+    def realizar_consultas(self):
         while True:
-            print("""Seleccione una opción:
-            1. Obtener todos los médicos asociados a una especialidad específica.
-            2. Obtener el precio de una consulta de una especialidad en específico.
-            3. Listar todos los socios con sus deudas asociadas en orden ascendente.
-            4. Realizar consultas respecto a cantidad de consultas entre dos fechas.
-            5. Realizar consultas respecto a las ganancias obtenidas entre dos fechas.
-            6. Salir de consultas.""")
-
-            opcion = input("Opción: ")
-
+            print("""\nSeleccione una opción:
+                    1. Obtener todos los médicos asociados a una especialidad específica.
+                    2. Obtener el precio de una consulta de una especialidad en específico.
+                    3. Listar todos los socios con sus deudas asociadas en orden ascendente.
+                    4. Realizar consultas respecto a cantidad de consultas entre dos fechas
+                    5. Realizar consultas respecto a las ganancias obtenidas entre dos fechas. """)
+            opcion = input("Opcion: ")
             if opcion == "1":
-                especialidad = input("Ingrese la especialidad: ")
-                medicos = self.obtener_medicos_por_especialidad(especialidad)
-                if medicos:
-                    for medico in medicos:
-                        print(f"Nombre: {medico['nombre']} {medico['apellido']}, Celular: {medico['celular']}")
-                else:
-                    print("No hay médicos asociados a esta especialidad.")
-
+                self.medicos_asociados_especialidad()
             elif opcion == "2":
-                especialidad = input("Ingrese la especialidad: ")
-                precio = self.obtener_precio_especialidad(especialidad)
-                print(f"Precio de la especialidad {especialidad}: {precio}")
-
+                self.precio_especialidad()
             elif opcion == "3":
-                socios = self.listar_socios_con_deudas()
-                for cedula, datos in socios:
-                    print(f"Cédula: {cedula}, Nombre: {datos['nombre']} {datos['apellido']}, Deuda: {datos['deuda']}")
-
-            elif opcion == "4" or opcion == "5":
-                try:
-                    fecha_inicio = input("Ingrese la fecha de inicio (YYYY-MM-DD): ")
-                    fecha_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d")
-                    fecha_final = input("Ingrese la fecha final (YYYY-MM-DD): ")
-                    fecha_final = datetime.strptime(fecha_final, "%Y-%m-%d")
-
-                    if opcion == "4":
-                        consultas = self.consultas_entre_fechas(fecha_inicio, fecha_final)
-                        print(f"Cantidad de consultas entre {fecha_inicio.date()} y {fecha_final.date()}: {len(consultas)}")
-
-                    elif opcion == "5":
-                        ganancias = self.ganancias_entre_fechas(fecha_inicio, fecha_final)
-                        print(f"Ganancias obtenidas entre {fecha_inicio.date()} y {fecha_final.date()}: {ganancias}")
-
-                except ValueError:
-                    print("No es una fecha válida, vuelva a ingresarla en el formato aaaa-mm-dd.")
-
-            elif opcion == "6":
+                self.deudas_socios()
+            elif opcion == "4":
+                self.consultas_entre_fechas()
+            elif opcion == "5":
+                self.ganancia_entre_fechas()
+                time.sleep(1)
                 break
-
             else:
-                print("Opción no válida. Por favor, ingrese una opción del 1 al 6.")
+                print("Opción no válida. Por favor, ingrese una opción del 1 al 5.")
+
+    def medicos_asociados_especialidad(self):
+        especialidad = input("Ingrese la especialidad: ")
+        if especialidad not in self.especialidades:
+            print("Esta especialidad no está registrada.")
+            return
+
+        medicos_asociados = []
+        for medico in self.medicos.values():
+            if medico.especialidad == especialidad:
+                medicos_asociados.append(medico)
+
+        if not medicos_asociados:
+            print("No hay médicos asociados a esta especialidad.")
+            return
+
+        print(f"Médicos asociados a la especialidad '{especialidad}':")
+        for medico in medicos_asociados:
+            print(f"Medico: {medico.nombre} {medico.apellido}, Cédula: {medico.cedula}")
+        time.sleep(2)
+
+    def precio_especialidad(self):
+        especialidad = input("Ingrese la especialidad: ")
+        if especialidad not in self.especialidades:
+            print("Esta especialidad no está registrada.")
+            return
+
+        precio = self.especialidades[especialidad]
+        print(f"El precio de una consulta de la especialidad '{especialidad}' es: {precio}")
+        time.sleep(1)
+    
+    def deudas_socios(self):
+        socios_ordenados = sorted(self.socios, key=lambda socio: socio.deuda)
+        for socio in socios_ordenados:
+            print(f"Socio: {socio.nombre} {socio.apellido}, Cédula: {socio.cedula}, Deuda: {socio.deuda}")
+        return
 
     def menu_principal(self):
         while True:
@@ -314,7 +329,7 @@ class Policlínica:
 
             1. Dar de alta una especialidad
             2. Dar de alta un socio
-            3. Dar de alta un médico
+            3. Dar de alta un médico        
             4. Dar de alta una consulta médica
             5. Emitir un ticket de consulta
             6. Realizar Consultas
@@ -335,7 +350,7 @@ class Policlínica:
                 self.realizar_consultas()
             elif opcion == "7":
                 print("Saliendo...")
-                time.sleep(1)
+                time.sleep(2)
                 break
             else:
                 print("Opción no válida. Por favor, ingrese una opción del 1 al 6.")
