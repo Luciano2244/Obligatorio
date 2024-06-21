@@ -3,6 +3,9 @@ import os
 import time
 from Objetos.socio import Socio
 from Objetos.medico import Medico
+from Objetos.consulta_medica import Consulta_medica
+
+
 
 class Policlínica: 
 
@@ -12,6 +15,8 @@ class Policlínica:
         self.socios = {}
         self.consultas = []
         #INICIALIZAMOS LOS ARRAY DE LA POLICLINICA
+
+    
     def alta_especialidad(self):
         while True:
             try:
@@ -40,13 +45,13 @@ class Policlínica:
         while True:
             try:
                 nombre = input("Ingrese el nombre: ")
-                if not nombre.isalpha() or nombre == " ":
+                if nombre.isdigit() or nombre == " ":
                     #LA FUNCION ISALPHA HACE QUE RETORNE FALSO SI EL STRING TIENE NUMERICOS
                     print("No es un nombre válido, ingréselo de nuevo.")
                     continue
 
                 apellido = input("Ingrese el apellido: ")
-                if not apellido.isalpha() or apellido == " ":
+                if apellido.isdigit() or apellido == " ":
                     print("No es un apellido válido, ingréselo de nuevo.")
                     continue
 
@@ -65,7 +70,7 @@ class Policlínica:
                     continue
 
                 tipo = input("Ingrese el tipo de socio (1- Bonificado, 2- No bonificado): ")
-                if tipo not in ["1", "2"]:
+                if tipo not in ["1","2"]:
                     print("El valor ingresado no es correcto, elige la opción 1 o 2.")
                     continue
 
@@ -83,12 +88,12 @@ class Policlínica:
         while True:
             try:
                 nombre = input("Ingrese el nombre: ")
-                if not nombre.isalpha() or nombre == " ":
+                if nombre.isdigit() or nombre == " ":
                     print("No es un nombre válido, ingréselo de nuevo.")
                     continue
 
                 apellido = input("Ingrese el apellido: ")
-                if not apellido.isalpha() or apellido == " ":
+                if apellido.isdigit() or apellido == " ":
                     print("No es un apellido válido, ingréselo de nuevo.")
                     continue
 
@@ -105,30 +110,32 @@ class Policlínica:
                     print("No es un número de celular válido, ingrese un número con el formato 09XXXXXXX.")
                     continue
 
-                especialidad = input("Ingrese la especialidad: ")
-                if especialidad.isdigit() or especialidad == " ":
-                    #VEFICA SI ES DE SOLO NUMEROS EL STRING  Y VUELVE AL INICIO
-                    print("El nombre de la especialidad es incorrecto, ingréselo nuevamente.")
-                    continue
-
-                if especialidad not in self.especialidades:
-                    print("""\nEsta especialidad no está dada de alta elija una opción::
-
-                1- Volver a ingresar la especialidad
-                2- Dar de alta esta especialidad """)
-                    opcion = input("Opción: ")
-                    if opcion == "1":
-                        self.alta_medico()
-                    elif opcion == "2":
-                        self.alta_especialidad()
-                        #AL QUERER DARLO DE ALTA SE VA A LA FUNCION DE ESPECIALIDAD Y LUEGO VUELVE A ESTA
-                    else:
+                while True:
+                    especialidad = input("Ingrese la especialidad: ")
+                    if especialidad.isdigit() or especialidad == " ":
+                        #VEFICA SI ES DE SOLO NUMEROS EL STRING  Y VUELVE AL INICIO
+                        print("El nombre de la especialidad es incorrecto, ingréselo nuevamente.")
                         continue
 
-                medico = Medico(nombre, apellido, cedula, fecha_nacimiento, fecha_ingreso, celular, especialidad)
-                self.medicos[cedula] = medico
-                print("El médico se ha creado con éxito.")
-                time.sleep(2)
+                    if especialidad not in self.especialidades:
+                        print("""\nEsta especialidad no está dada de alta elija una opción::
+
+                    1- Volver a ingresar la especialidad
+                    2- Dar de alta esta especialidad """)
+                        opcion = input("Opción: ")
+                        if opcion == "1":
+                            continue
+                        elif opcion == "2":
+                            self.alta_especialidad()
+                            #AL QUERER DARLO DE ALTA SE VA A LA FUNCION DE ESPECIALIDAD Y LUEGO VUELVE A ESTA
+                        else:
+                            continue
+
+                    medico = Medico(nombre, apellido, cedula, fecha_nacimiento, fecha_ingreso, celular, especialidad)
+                    self.medicos[cedula] = medico
+                    print("El médico se ha creado con éxito.")
+                    time.sleep(2)
+                    break
                 break
             except ValueError:
                 print("No es una fecha válida, vuelva a ingresarla en el formato aaaa-mm-dd.")
@@ -161,9 +168,10 @@ class Policlínica:
                     print("El nombre del médico es incorrecto, ingréselo nuevamente.")
                     continue
                 
+                
                 encontrado = False
                 for medico in self.medicos.values():
-                    if medico['nombre'] == medico_nombre:
+                    if medico.nombre_completo == medico_nombre:
                         encontrado = True
                         break
                 
@@ -187,12 +195,8 @@ class Policlínica:
                 fecha = input("Ingrese la fecha de la consulta (YYYY-MM-DD): ")
                 fecha = datetime.strptime(fecha, "%Y-%m-%d")
                 cantidad_pacientes = int(input("Ingrese la cantidad de pacientes que se atenderán: "))
-                self.consultas.append({
-                    "especialidad": especialidad,
-                    "medico": medico_nombre,
-                    "fecha": fecha,
-                    "cantidad_pacientes": cantidad_pacientes
-                })
+                consulta = Consulta_medica(especialidad, medico_nombre, fecha, cantidad_pacientes, precio=self.especialidades[especialidad])
+                self.consultas.append(consulta)
                 print("La consulta se ha creado con éxito.")
                 time.sleep(2)
                 break
@@ -209,11 +213,15 @@ class Policlínica:
             opcion = input("Opción: ")
             if opcion == "1":
                 self.emitir_ticket_consulta()
-            elif opcion_socio == "2":
+            elif opcion == "2":
                 self.alta_especialidad()
             return
         
-        consultas_especialidad = [c for c in self.consultas if c["especialidad"] == especialidad]
+        consultas_especialidad = []
+        for consulta in self.consultas:
+            if consulta.especialidad == especialidad:
+                consultas_especialidad.append(consulta)
+
         #RECORRE EL ARRAY DE CONSULTAS PARA VER SI HAY UNA ESPECIALIDAD 
         if not consultas_especialidad:
             print("No hay consultas disponibles para esta especialidad.")
@@ -221,7 +229,7 @@ class Policlínica:
 
         print(f"Consultas disponibles para la especialidad {especialidad}:")
         for i, consulta in enumerate(consultas_especialidad, 1):
-            print(f"{i}. Médico: {consulta['medico']}, Fecha: {consulta['fecha'].date()}")
+            print(f"{i}. Médico: {consulta.nombre_medico}, Fecha: {consulta.fecha_consulta.date()}")
             #IMPRIME EL NOMBRE DEL MEDICO CON LA FECHA DE CONSULTAS DISPONIBLE ACORDE A LA ESPEPCIALIDAD
         while True:
             try:
@@ -229,34 +237,49 @@ class Policlínica:
                 if 1 <= opcion <= len(consultas_especialidad):
                     consulta_seleccionada = consultas_especialidad[opcion - 1]
                     #-1 POR QUE LOS ARRAY EMPIEZAN DE 0 Y SELECCIONA EL VALOR INDICADO
-                    print(f"Ha seleccionado la consulta del médico {consulta_seleccionada['medico']} el {consulta_seleccionada['fecha'].date()}.")
-                    #ELIGE LA CONSULTA EXITOSAMENTE CON EL NOMBRE DEL MEDICO Y LA FECHA DE LA CONSULTA
-                    time.sleep(2)
+                    print(f"Ha seleccionado la consulta del médico {consulta_seleccionada.nombre_medico} el {consulta_seleccionada.fecha_consulta.date()}.")
                     break
                 else:
                     print(f"La opción ingresada no es válida. Debe ser un número entre 1 y {len(consultas_especialidad)}.")
                     #CANTIDAD DE CONSULTAS MEDICAS DISPONIBLES EN ESA FECHA SEGUN LA ESPECIALIDAD
             except ValueError:
                 print("Por favor, ingrese un número válido.")
+        
+        if consulta.elegir_numero_atencion_disponible() == "1":
+            print("No hay números disponibles para esta consulta")
+            time.sleep(2)
+            self.menu_principal()
 
-        cedula_socio = input("Ingrese cédula de identidad del socio: ")
-        if cedula_socio not in self.socios:
-            print("""Este socio no está dado de alta, elija una opción:
-                1 - Volver a ingresar el socio
-                2 - Dar de alta el socio""")
-            opcion_socio = input("Opción: ")
-            if opcion_socio == "1":
-                self.emitir_ticket_consulta()
-            elif opcion_socio == "2":
-                self.alta_socio()
-            else:
-                print("Opción no válida.")
-                return
-
+        while True:
+            cedula_socio = input("Ingrese cédula de identidad del socio: ")
+            if cedula_socio not in self.socios:
+                print("""Este socio no está dado de alta, elija una opción:
+                    1 - Volver a ingresar el socio
+                    2 - Dar de alta el socio""")
+                opcion_socio = input("Opción: ")
+                if opcion_socio == "1":
+                    continue
+                elif opcion_socio == "2":
+                    self.alta_socio()
+                else:
+                    print("Opción no válida.")
+                    return
+            break
+        
         if cedula_socio in self.socios:
-            precio=self.especialidades[especialidad]
-            deuda=self.socios.deuda
-            deuda+=precio
+            socio = self.socios[cedula_socio]
+        else:
+            print("La cedula ingresada no es de ningun socio")
+            self.emitir_ticket_consulta()
+        precio=self.especialidades[especialidad]
+        if socio.tipo == "1":
+            costo_consulta = precio * 0.8
+        else:
+            costo_consulta = precio
+        socio.deuda += costo_consulta
+
+        print("Ticket de consulta emitido con éxito.")
+        time.sleep(2)
 
     
 
@@ -267,7 +290,8 @@ class Policlínica:
                     2. Obtener el precio de una consulta de una especialidad en específico.
                     3. Listar todos los socios con sus deudas asociadas en orden ascendente.
                     4. Realizar consultas respecto a cantidad de consultas entre dos fechas
-                    5. Realizar consultas respecto a las ganancias obtenidas entre dos fechas. """)
+                    5. Realizar consultas respecto a las ganancias obtenidas entre dos fechas.
+                    6. Volver a Menu Principal """)
             opcion = input("Opcion: ")
             if opcion == "1":
                 self.medicos_asociados_especialidad()
@@ -279,10 +303,12 @@ class Policlínica:
                 self.consultas_entre_fechas()
             elif opcion == "5":
                 self.ganancia_entre_fechas()
+            elif opcion == "6":
+                self.menu_principal()
                 time.sleep(1)
                 break
             else:
-                print("Opción no válida. Por favor, ingrese una opción del 1 al 5.")
+                print("Opción no válida. Por favor, ingrese una opción del 1 al 6.")
 
     def medicos_asociados_especialidad(self):
         especialidad = input("Ingrese la especialidad: ")
@@ -315,10 +341,48 @@ class Policlínica:
         time.sleep(1)
     
     def deudas_socios(self):
-        socios_ordenados = sorted(self.socios, key=lambda socio: socio.deuda)
-        for socio in socios_ordenados:
-            print(f"Socio: {socio.nombre} {socio.apellido}, Cédula: {socio.cedula}, Deuda: {socio.deuda}")
+        socios_ordenados = sorted(self.socios.items(), key=lambda x: x[1].deuda)
+        for cedula, socio in socios_ordenados:
+            print(f"Socio: {socio.nombre} {socio.apellido}, Cédula: {cedula}, Deuda: {socio.deuda}")
         return
+    
+    def consultas_entre_fechas(self):
+        while True:
+            fecha_inicio =input("Ingrese la fecha de inicio en formato (YYYY-MM-DD): ")
+            fecha_fin = input("Ingrese la fecha de fin en formato (YYYY-MM-DD): ")
+            try:
+                fecha_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d")
+                fecha_fin = datetime.strptime(fecha_fin, "%Y-%m-%d")
+                break
+            except ValueError:
+                print("No es una fecha válida, vuelva a ingresarla en el formato aaaa-mm-dd: ")
+        
+        consultas_realizadas_entre_fechas = 0
+        for consulta in self.consultas:
+            if fecha_inicio <= consulta.fecha_consulta <= fecha_fin:
+                consultas_realizadas_entre_fechas += 1
+
+        print(f"Se realizaron {consultas_realizadas_entre_fechas} consultas entre {fecha_inicio.date()} y {fecha_fin.date()}.")
+
+    def ganancia_entre_fechas(self):
+        while True:
+            fecha_inicio =input("Ingrese la fecha de inicio en formato (YYYY-MM-DD): ")
+            fecha_fin = input("Ingrese la fecha de fin en formato (YYYY-MM-DD): ")
+            try:
+                fecha_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d")
+                fecha_fin = datetime.strptime(fecha_fin, "%Y-%m-%d")
+                break
+            except ValueError:
+                print("No es una fecha válida, vuelva a ingresarla en el formato aaaa-mm-dd: ")
+
+        ganancia_total_entre_fechas = 0
+        for consulta in self.consultas:
+            if fecha_inicio <= consulta.fecha_consulta <= fecha_fin:
+                ganancia_total_entre_fechas += consulta.precio
+
+        print(f"Se obtuvo una ganancia total de {ganancia_total_entre_fechas} entre {fecha_inicio.date()} y {fecha_fin.date()}.")
+        
+        
 
     def menu_principal(self):
         while True:
@@ -353,7 +417,7 @@ class Policlínica:
                 time.sleep(2)
                 break
             else:
-                print("Opción no válida. Por favor, ingrese una opción del 1 al 6.")
+                print("Opción no válida. Por favor, ingrese una opción del 1 al 7.")
 
 if __name__ == "__main__":
     poli = Policlínica()
